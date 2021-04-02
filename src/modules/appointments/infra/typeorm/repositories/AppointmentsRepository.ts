@@ -1,6 +1,7 @@
 import { getRepository, Repository } from 'typeorm';
 
 import IAppointmentsRepository from '@modules/appointments/repositories/IAppointmentsRepository';
+import ICreateAppointmentDTO from '@modules/appointments/dtos/ICreateAppointmentDTO';
 
 import Appointment from '../entities/Appointment';
 
@@ -11,6 +12,15 @@ class AppointmentsRepository implements IAppointmentsRepository {
     this.ormRepository = getRepository(Appointment);
   }
 
+  public async create({
+    provider_id,
+    date,
+  }: ICreateAppointmentDTO): Promise<Appointment> {
+    const appointment = this.ormRepository.create({ provider_id, date });
+    await this.ormRepository.save(appointment);
+    return appointment;
+  }
+
   public async findByDate(date: Date): Promise<Appointment | undefined> {
     const findAppointment = await this.ormRepository.findOne({
       where: { date },
@@ -19,39 +29,5 @@ class AppointmentsRepository implements IAppointmentsRepository {
     return findAppointment;
   }
 }
-
-// import { isEqual } from 'date-fns';
-// import Appointment from '../models/Appointment';
-
-// interface createAppointmentDTO {
-//   provider: string;
-//   date: Date;
-// }
-
-// class AppointmentsRepository {
-//   private appointments: Appointment[];
-
-//   constructor() {
-//     this.appointments = [];
-//   }
-
-//   public all(): Appointment[] {
-//     return this.appointments;
-//   }
-
-//   public findByDate(date: Date): Appointment | null {
-//     const findAppointment = this.appointments.find(appointment =>
-//       isEqual(date, appointment.date),
-//     );
-
-//     return findAppointment || null;
-//   }
-
-//   public create({ provider, date }: createAppointmentDTO): Appointment {
-//     const appointment = new Appointment({ provider, date });
-//     this.appointments.push(appointment);
-//     return appointment;
-//   }
-// }
 
 export default AppointmentsRepository;
